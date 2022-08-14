@@ -1,8 +1,47 @@
 
 import {IStack} from "./IStack";
 
-class Stack<T> implements IStack<T>{
+class Stack<T> implements IStack<T>, Iterator<T>{
     private contents: T[] = [];
+    private counter: number = 0;
+
+    [Symbol.iterator]() {
+        return this;
+    }
+
+    public next(): IteratorResult<T> {
+        if (this.counter === this.contents.length) {
+            let temp_counter = this.counter;
+            this.counter = 0;
+            return {
+                done: true,
+                value: this.contents[temp_counter]
+            }
+        } else {
+            let temp_counter = this.counter;
+            this.counter++
+            return {
+                done: false,
+                value: this.contents[temp_counter]
+            }
+        }
+
+    }
+
+    public hasNext() : IteratorResult<T> {
+        if (this.counter === this.contents.length) {
+            return {
+                done: true,
+                value: this.contents[this.counter]
+            }
+        } else {
+            return {
+                done: false,
+                value: this.contents[this.counter]
+            }
+        }
+
+    }
     
     public push(value: T){
         this.contents.push(value);
@@ -46,12 +85,24 @@ console.log("top value is : " + stack.topValue() + "\n");
 for (let index = -1; index < 5; index++) {
     console.log(index + " :" + stack.valueOf(index));
 }
+console.log("with iterator: ");
+while (!stack.hasNext().done) {
+    console.log(stack.next().value);
+}
+console.log("with iterator: ");
+for (const s of stack) {
+    console.log(s);
+}
 console.log();
 
 stack.pop();
 
-for (let index = 0; index < 4; index++) {
+for (let index = -1; index < 5; index++) {
     console.log(index + " :" + stack.valueOf(index));
+}
+console.log("with iterator: ");
+for (const s of stack) {
+    console.log(s);
 }
 
 console.log("\n" + "top value is : " + stack.topValue() + "\n");
@@ -59,14 +110,10 @@ console.log("\n" + "top value is : " + stack.topValue() + "\n");
 stack.pop();
 stack.pop();
 
-for (let index = 0; index < 4; index++) {
+for (let index = -1; index < 5; index++) {
     console.log(index + " :" + stack.valueOf(index));
 }
-console.log();
-
-stack.pop();
-
-for (let index = 0; index < 3; index++) {
-    console.log(index + " :" + stack.valueOf(index));
+console.log("with iterator: ");
+for (const s of stack) {
+    console.log(s);
 }
-
