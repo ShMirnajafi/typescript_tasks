@@ -1,7 +1,7 @@
 
 import {IStack} from "./IStack";
 
-class Stack<T> implements IStack<T>, Iterator<T>{
+class Stack<T> implements IStack<T>, Iterable<T>{
     private contents: T[] = [];
     private counter: number = 0;
 
@@ -89,6 +89,7 @@ console.log("with iterator: ");
 while (!stack.hasNext().done) {
     console.log(stack.next().value);
 }
+stack.next();
 console.log("with iterator: ");
 for (const s of stack) {
     console.log(s);
