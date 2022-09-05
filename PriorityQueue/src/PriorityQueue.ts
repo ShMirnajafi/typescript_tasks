@@ -3,7 +3,7 @@ interface IPriorityQueue<T> {
     
     setPriority: (value: T, priority: number) => boolean;
 
-    dequeue: () => component<T>;
+    dequeue: () => component<T> | undefined;
 
     lenght: () => number;
 
@@ -23,6 +23,36 @@ type component<T> = [
 
 class PriorityQueue<T> implements IPriorityQueue<T>{
     private contents: component<T>[] = [];
+    comparator: (a: component<T>, b: component<T>) => number;
+
+    [Symbol.iterator]() {
+        let counter: number = 0;
+        let temp_contents = this.contents;
+
+        return {
+            next(): IteratorResult<T> {
+                if (counter === temp_contents.length) {
+                    let temp_counter = counter;
+                    counter = 0;
+                    return {
+                        done: true,
+                        value: temp_contents[temp_counter][0]
+                    }
+                } else {
+                    let temp_counter = counter;
+                    counter++
+                    return {
+                        done: false,
+                        value: temp_contents[temp_counter][0]
+                    }
+                }
+            }
+        };
+    }
+
+    constructor(comparator: (a: component<T>, b: component<T>) => number) {
+        this.comparator = comparator;
+    }
 
     public enqueue(value: T, priority?: number | undefined): boolean {
         if (priority === undefined) {
@@ -30,7 +60,11 @@ class PriorityQueue<T> implements IPriorityQueue<T>{
                 this.contents.push([value, this.contents[this.contents.length - 1][1] + 1]);
                 return true;
             } else if (this.contents[this.contents.length - 1][1] > this.contents.length) {
-                this.contents.push([value, this.contents[this.contents.length - 1][1] - 1]);
+                this.contents.push([value, 1]);
+                let i = 1;
+                while (!this.setPriority(value, i)) {
+                    i++;
+                }
                 return true;
             } else {
                 this.contents.push([value, this.contents.length]);
@@ -48,14 +82,14 @@ class PriorityQueue<T> implements IPriorityQueue<T>{
         }
     }
 
-    public dequeue(): component<T> {
-        let content = this.contents[0];
-        for (let index = 0; index < this.contents.length - 1; index++) {
-            this.contents[index] = this.contents[index + 1];
-        }
-        this.contents.pop();
+    public dequeue(): component<T> | undefined{
+        // for (let index = 0; index < this.contents.length - 1; index++) {
+        //     this.contents[index] = this.contents[index + 1];
+        // }
+        // this.contents.pop();
         this.resetQueue();
-        return content;
+        
+        return this.contents.pop();
     }
 
     public setPriority(value: T, priority: number):  boolean {
@@ -112,16 +146,19 @@ class PriorityQueue<T> implements IPriorityQueue<T>{
     }
 
     private resetQueue(): void {
-        for (let i = 0; i < this.contents.length; i++) {
-            for (let j = 0; j < this.contents.length; j++) {
-                if (this.contents[i][1] < this.contents[j][1]) {
-                    let temp: component<T>;
-                    temp = this.contents[i];
-                    this.contents[i] = this.contents[j];
-                    this.contents[j] = temp;
-                }
-            }
-        }
+        // for (let i = 0; i < this.contents.length; i++) {
+        //     for (let j = 0; j < this.contents.length; j++) {
+        //         if (this.contents[i][1] < this.contents[j][1]) {
+        //             let temp: component<T>;
+        //             temp = this.contents[i];
+        //             this.contents[i] = this.contents[j];
+        //             this.contents[j] = temp;
+        //         }
+        //     }
+        // }
+
+        this.contents.sort(comparator);
+
         while (this.contents[0][1] !== 1) {
             for (let index = 0; index < this.contents.length; index++) {
                 this.contents[index][1]--;
@@ -130,16 +167,21 @@ class PriorityQueue<T> implements IPriorityQueue<T>{
     }
 }
 
-let pqueue = new PriorityQueue<number>;
+function comparator<T>(a: component<T>, b: component<T>): number {
+    if (a[1] > b[1]) {
+        return 1;
+    } else if (a[1] < b[1]) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+let pqueue = new PriorityQueue<number>(comparator);
 
 pqueue.enqueue(1, 1);
-pqueue.print();
-
 pqueue.enqueue(7, 2);
-pqueue.print();
 pqueue.enqueue(4, 5);
-pqueue.print();
-
 pqueue.enqueue(6, 3);
 pqueue.print();
 
@@ -157,3 +199,6 @@ pqueue.setPriority(7, 12);
 pqueue.print();
 
 console.log("priority of 7 is " + pqueue.priorityOf(7));
+
+pqueue.dequeue();
+pqueue.print();
