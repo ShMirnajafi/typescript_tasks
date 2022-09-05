@@ -1,7 +1,7 @@
 interface IQueue<T> {
     enqueue: (value: T) => void;
 
-    dequeue: () => T;
+    dequeue: () => T | undefined;
 
     lenght: () => number;
 
@@ -14,20 +14,52 @@ interface IQueue<T> {
     valueOf: (index: number) => T | null;
 }
 
-class Queue<T> implements IQueue<T>{
+class Queue<T> implements IQueue<T> {
+    
     private contents: T[] = [];
+
+    [Symbol.iterator]() {
+        let counter: number = 0;
+        let temp_contents = this.contents;
+
+        return {
+            next(): IteratorResult<T> {
+                if (counter === temp_contents.length) {
+                    let temp_counter = counter;
+                    counter = 0;
+                    return {
+                        done: true,
+                        value: temp_contents[temp_counter]
+                    }
+                } else {
+                    let temp_counter = counter;
+                    counter++
+                    return {
+                        done: false,
+                        value: temp_contents[temp_counter]
+                    }
+                }
+            }
+        };
+    }
     
     public enqueue(value: T): void {
-        this.contents.push(value);
+        //this.contents.push(value);
+        
+        this.contents.unshift(value);
     }
 
-    public dequeue(): T {
-        let content = this.contents[0];
-        for (let index = 0; index < this.contents.length - 1; index++) {
-            this.contents[index] = this.contents[index + 1];
-        }
-        this.contents.pop();
-        return content;
+    public dequeue(): T | undefined{
+        // let content = this.contents[0];
+        // for (let index = 0; index < this.contents.length - 1; index++) {
+        //     this.contents[index] = this.contents[index + 1];
+        // }
+        // this.contents.pop();
+        // return content;
+
+        //return this.contents.shift();
+
+        return this.contents.pop();
     }
 
     public lenght(): number {
@@ -96,4 +128,5 @@ queue.print();
 
 console.log(queue.dequeue());
 queue.print();
+
 
