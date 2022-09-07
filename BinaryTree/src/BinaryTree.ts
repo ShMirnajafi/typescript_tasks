@@ -5,13 +5,35 @@ interface IBinaryTree<T> {
 }
 
 class BTnode<T> {
-    value: T;
-    left_child?: BTnode<T>;
-    right_child?: BTnode<T>;
+    private data: T;
+    private left_child?: BTnode<T>;
+    private right_child?: BTnode<T>;
 
     constructor(value: T) {
-        this.value = value;
+        this.data = value;
     }
+
+    public get value(): T {
+        return this.data;
+    }
+    
+    public get leftChild(): BTnode<T> | undefined {
+        return this.left_child;
+    }
+    
+    public get rightChild(): BTnode<T> | undefined {
+        return this.right_child;
+    }
+    
+    
+    public set leftChildValue(value: T) {
+        this.left_child = new BTnode(value);
+    }
+    
+    public set rightChildValue(value: T) {
+        this.right_child = new BTnode(value);
+    }
+    
 }
 
 class BinaryTree<T> implements IBinaryTree<T> {
@@ -26,17 +48,17 @@ class BinaryTree<T> implements IBinaryTree<T> {
     
             while (true) {
                 if (value > temp_node.value) {
-                    if (temp_node.right_child) {
-                        temp_node = temp_node.right_child;
+                    if (temp_node.rightChild) {
+                        temp_node = temp_node.rightChild;
                     } else {
-                        temp_node.right_child = new BTnode(value);
+                        temp_node.rightChildValue = value;
                         return true;
                     }
                 } else if (value < temp_node.value) {
-                    if (temp_node.left_child) {
-                        temp_node = temp_node.left_child;
+                    if (temp_node.leftChild) {
+                        temp_node = temp_node.leftChild;
                     } else {
-                        temp_node.left_child = new BTnode(value);
+                        temp_node.leftChildValue = value;
                         return true;
                     }
                 } else {
@@ -54,16 +76,16 @@ class BinaryTree<T> implements IBinaryTree<T> {
 
             while (temp_node.value !== value) {
                 if (value > temp_node.value) {
-                    if (!temp_node.right_child) {
+                    if (!temp_node.rightChild) {
                         return false;
                     } else {
-                        temp_node = temp_node.right_child;
+                        temp_node = temp_node.rightChild;
                     }
                 } else {
-                    if (!temp_node.left_child) {
+                    if (!temp_node.leftChild) {
                         return false;
                     } else {
-                        temp_node = temp_node.left_child;
+                        temp_node = temp_node.leftChild;
                     }
                 }
             }
@@ -74,24 +96,24 @@ class BinaryTree<T> implements IBinaryTree<T> {
 
     public traverseInOrder(node: BTnode<T> | undefined): void {
         if (node) {
-            this.traverseInOrder(node.left_child);
+            this.traverseInOrder(node.leftChild);
             console.log(" " + node.value);
-            this.traverseInOrder(node.right_child);
+            this.traverseInOrder(node.rightChild);
         }
     }
 
     public traversePreOrder(node: BTnode<T> | undefined): void {
         if (node) {
             console.log(" " + node.value);
-            this.traverseInOrder(node.left_child);
-            this.traverseInOrder(node.right_child);
+            this.traverseInOrder(node.leftChild);
+            this.traverseInOrder(node.rightChild);
         }
     }
 
     public traversePostOrder(node: BTnode<T> | undefined): void {
         if (node) {
-            this.traverseInOrder(node.left_child);
-            this.traverseInOrder(node.right_child);
+            this.traverseInOrder(node.leftChild);
+            this.traverseInOrder(node.rightChild);
             console.log(" " + node.value);
         }
     }
