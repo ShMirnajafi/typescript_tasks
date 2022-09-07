@@ -30,9 +30,8 @@ class node<T> {
     public get previousNode(): node<T> |null {
         return this.previous_node;
     }
-
     
-    public setPrevious(node: node<T>) {
+    public set previous(node: node<T>) {
         this.previous_node = node;
     }
     
@@ -51,42 +50,43 @@ class LinkedList<T> implements ILinkedList<T> {
     private final_node: node<T>;
 
     [Symbol.iterator]() {
-        let temp_node = this.head;
-        let temp_node2 = this.final_node;
+        let temp_node: node<T> | null = this.head;
+        let temp_node2: node<T> | null = this.final_node;
         let temp_head = this.head;
         let temp_final_node = this.final_node;
 
         return {
             next(): IteratorResult<T> {
                 let temp_return_node = temp_node;
-                if (temp_node.nextNode === null) {
+                if (!temp_node) {
                     temp_node = temp_head;
                     return {
                         done: true,
-                        value: temp_return_node.value
+                        value: temp_return_node?.value
                     }
                 } else {
-                    temp_node = temp_node.nextNode;
+                    temp_node = temp_node.nextNode!;
                     return {
                         done: false,
-                        value: temp_return_node.value!
+                        value: temp_return_node!.value!
                     }
                 }
             },
             
             previous(): IteratorResult<T> {
                 let temp_return_node = temp_node2;
-                if (temp_node2.previousNode === null) {
+                if (!temp_node2) {
                     temp_node2 = temp_final_node;
+                    //console.log(temp_final_node);
                     return {
                         done: true,
-                        value: temp_return_node.value
+                        value: temp_return_node?.value
                     }
                 } else {
                     temp_node2 = temp_node2.previousNode;
                     return {
                         done: false,
-                        value: temp_return_node.value!
+                        value: temp_return_node!.value!
                     }
                 }
             }
@@ -104,8 +104,9 @@ class LinkedList<T> implements ILinkedList<T> {
             temp_node = temp_node.nextNode;
         }
         temp_node.addNode(new node(value));
-        temp_node.nextNode!.setPrevious(temp_node);
-        this.final_node = temp_node.nextNode!;
+        let new_node: node<T> = temp_node.nextNode!;
+        new_node!.previous = temp_node;
+        this.final_node = new_node!;
         console.log(this.final_node);
     }
 
@@ -113,7 +114,7 @@ class LinkedList<T> implements ILinkedList<T> {
         let temp_node: node<T> = this.head; 
         let fisrt_node: node<T> = new node(value);
         fisrt_node.addNode(temp_node);
-        temp_node.setPrevious(fisrt_node);
+        temp_node.previous = fisrt_node;
         this.head = fisrt_node;
     }
 
@@ -125,7 +126,7 @@ class LinkedList<T> implements ILinkedList<T> {
                 temp_node.removeNextNode();
                 if (temp_next_node !== null) {
                     temp_node.addNode(temp_next_node);
-                    temp_next_node.setPrevious(temp_node);
+                    temp_next_node.previous = temp_node;
                 }
                 return true;
             }
@@ -137,23 +138,34 @@ class LinkedList<T> implements ILinkedList<T> {
     public print(): void {
         let temp_node: node<T> = this.head;
         console.log('[');
-        while (temp_node.nextNode !== null) {
+        while (temp_node !== null) {
             console.log(temp_node.value);
-            temp_node = temp_node.nextNode;
+            temp_node = temp_node.nextNode!;
         }
         console.log(']');
     }
+    
+    // public get finalNode(): node<T> {
+    //     let temp_node = this.head;
+
+    //     while (temp_node.nextNode) {
+    //         temp_node = temp_node.nextNode;
+    //     }
+    //     return temp_node;
+    // }
+    
 }
 
 let linkedlist = new LinkedList<number>(1);
-let iterator = linkedlist[Symbol.iterator]();
 
 linkedlist.add(2);
 linkedlist.add(4);
 linkedlist.add(7);
 linkedlist.add(0);
 linkedlist.print();
+let iterator = linkedlist[Symbol.iterator]();
 
+console.log(iterator.next());
 console.log(iterator.next());
 console.log(iterator.next());
 console.log(iterator.next());
@@ -165,7 +177,9 @@ console.log(iterator.previous());
 console.log(iterator.previous());
 console.log(iterator.previous());
 console.log(iterator.previous());
-
+console.log(iterator.previous());
+console.log(iterator.previous());
+console.log(iterator.previous());
 
 console.log("with iterator:");
 for (const n of linkedlist) {
@@ -184,6 +198,11 @@ linkedlist.print();
 
 linkedlist.addFirst(20);
 linkedlist.print();
+
+console.log("with iterator:");
+for (const n of linkedlist) {
+    console.log(n);
+}
 
 console.log(linkedlist.remove(-1) + "\n" + linkedlist.remove(-3));
 linkedlist.print();
